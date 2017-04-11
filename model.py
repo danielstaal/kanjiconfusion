@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import matplotlib.pyplot as plt
 import numpy as np
 import timeit
@@ -106,4 +107,3 @@ if __name__ == '__main__':
 	learn()
 
 	# end = timeit.timeit()
-	# print("time taken: ", end - start)
