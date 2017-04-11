@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import timeit
-from random import shuffle
+import random
 import sys
 # from tensorflow.examples.tutorials.mnist import input_data
 # mnist = input_data.read_data_sets('MNIST_data', one_hot=True)
@@ -9,7 +9,6 @@ import tensorflow as tf
 sess = tf.InteractiveSession()
 
 import tiff2dataset
-dataset = tiff2dataset.get_dataset()
 
 # function to get a part of the dataset
 def get_datapairs(dataset, n1, n2):
@@ -30,7 +29,7 @@ def max_pool_2x2(x):
   return tf.nn.max_pool(x, ksize=[1, 2, 2, 1],
                         strides=[1, 2, 2, 1], padding='SAME')
 
-def learn():
+def learn(dataset):
 	no_of_classes = len(dataset[1][0])
 	print("no. of classes: ", no_of_classes)
 	print("dataset size: ", len(dataset[0]))
@@ -38,8 +37,12 @@ def learn():
 	train_part = int(len(dataset[0]) * 0.6666)
 
 	# random permutation of dataset
-	shuffle(dataset[0])
-	shuffle(dataset[1])
+	imagevector = dataset[0]
+	imagelabels = dataset[1]
+	combined = list(zip(imagevector, imagelabels))
+	random.shuffle(combined)
+	imagevector[:], imagelabels[:] = zip(*combined)
+
 	# then split the data in train and testset
 	train_set = get_datapairs(dataset, 0, train_part)
 	test_set = get_datapairs(dataset, train_part+1, len(dataset[0]))
@@ -84,14 +87,15 @@ def learn():
 	sess.run(tf.global_variables_initializer())
 
 	print("Training Phase")
-	no_of_epoch = 200
+	no_of_epoch = 100
 	for i in range(1, no_of_epoch + 1):
 		sys.stdout.write("\rEpoch: %i" % i)
 		sys.stdout.flush()
 		batch = train_set
-		if i%10 == 0:
-			train_accuracy = accuracy.eval(feed_dict={x:batch[0], y_: batch[1], keep_prob: 1.0})
-			print(" training accuracy %g"%(i, train_accuracy))
+		if i%2 == 0:
+			test_batch = test_set
+			train_accuracy = accuracy.eval(feed_dict={x:test_batch[0], y_:test_batch[1], keep_prob: 1.0})
+			print(" training accuracy %g"%(train_accuracy))
 		train_step.run(feed_dict={x: batch[0], y_: batch[1], keep_prob: 1.0})
 	print('')
 
@@ -102,8 +106,9 @@ def learn():
 
 if __name__ == '__main__':
 	# start = timeit.timeit()
-	
-	learn()
+	dataset = tiff2dataset.get_dataset()
+
+	learn(dataset)
 
 	# end = timeit.timeit()
 	# print("time taken: ", end - start)
