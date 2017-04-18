@@ -1,4 +1,4 @@
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import numpy as np
 import os
 import timeit
@@ -33,11 +33,14 @@ def create_onehot_dict(labels, onehot_dict):
 # a vector and get the onehot vector for this label
 def create_datapoint(im, label, onehot_dict):
 
+	# change to vector
+	im = np.asarray(im).reshape(-1)
+
 	index = onehot_dict[label]
-	vec = np.zeros(len(onehot_dict))
-	vec[index] = 1
+	one_hot_label = np.zeros(len(onehot_dict))
+	one_hot_label[index] = 1
 	
-	return [im, vec]
+	return [im, one_hot_label]
 
 # this function creates the dataset as a tuple of two lists:
 # (image_vectors, image_labels)
@@ -59,12 +62,12 @@ def get_dataset():
 	for writer in all_labels:
 		create_onehot_dict(writer, onehot_dict)
 
-	images = glob.glob('.\offline_competition_data\*.tiff')
+	images = glob.glob('offline_competition_data/*.tiff')
 
 	# initialize matrix with total amount of images rows, and amount of classes columns
 	no_of_images = len(all_labels)*len(all_labels[0])
 	no_of_classes = len(onehot_dict)
-	images = np.zeros((no_of_images, 48, 48))
+	image_vectors = np.zeros((no_of_images,48*48))
 	onehot_labels = np.zeros((no_of_images,no_of_classes))
 
 	for i in range(len(images)):
@@ -84,9 +87,11 @@ def get_dataset():
 		im = np.array(im)
 
 		[im, vec] = create_datapoint(im, label, onehot_dict)
-		print(im)
-		images[i] = im
+		image_vectors[i] = im
 		onehot_labels[i] = vec
 
-	return (image, onehot_labels)
+	return (image_vectors, onehot_labels)
 
+if __name__ == '__main__':
+	i, j = get_dataset()
+	print(i[1])
