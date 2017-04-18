@@ -1,11 +1,8 @@
-
-import scipy
-import csv
 import os
 import glob
 import numpy, scipy.misc
 from PIL import Image
-# from IPython.display import Image
+import csv
 
 class SingleGntImage(object):
     def __init__(self, f):
@@ -17,7 +14,6 @@ class SingleGntImage(object):
         # check garbage label
         if label_gb.encode('hex') is 'ff':
             return True, None
-        # normal label        
         else:
             label_uft8 = label_gb.decode('gb18030').encode('utf-8')
             return False, label_uft8
@@ -63,9 +59,13 @@ class SingleGntImage(object):
             image_matrix_list.append(row)
 
         # convert to numpy ndarray with size of 40 * 40 and add margin of 4
-        self.image_matrix_numpy =             scipy.misc.imresize(numpy.array(image_matrix_list),             size=(40, 40)) / max_value
-        self.image_matrix_numpy = numpy.lib.pad(self.image_matrix_numpy,             margin, self.padwithones)
-        return self.label, self.image_matrix_numpy,             self.width, self.height, False
+        self.image_matrix_numpy = \
+            scipy.misc.imresize(numpy.array(image_matrix_list), \
+            size=(40, 40)) / max_value
+        self.image_matrix_numpy = numpy.lib.pad(self.image_matrix_numpy, \
+            margin, self.padwithones)
+        return self.label, self.image_matrix_numpy, \
+            self.width, self.height, False
 
     def padwithones(self, vector, pad_width, iaxis, kwargs):
         vector[:pad_width[0]] = 1.0
@@ -81,11 +81,7 @@ class ReadGntFile(object):
         self.file_list = []
 
         # get all gnt files in the dir
-        
-#         dir_path = os.path.join(os.path.split(__file__)[0], "..", "data")
-        
-        dir_path = 'C:\Users\daniel\Documents\AImaster\kanjiconfusion\competition_POT\dataset'
-        
+        dir_path = os.path.join(os.path.split(__file__)[0], "data")
         for file_name in glob.glob(os.path.join(dir_path, '*.gnt')):
             self.file_list.append(file_name)
 
@@ -101,7 +97,7 @@ class ReadGntFile(object):
         labels = []
 
         #open all gnt files
-        for i, file_name in enumerate(self.file_list):
+        for i, file_name in enumerate(self.file_list[0:10]):
             
             temp_labels = []
             end_of_image = False
@@ -113,7 +109,8 @@ class ReadGntFile(object):
                     this_single_image = SingleGntImage(f)
 
                     # get the pixel matrix of a single image
-                    label, pixel_matrix, width, height, end_of_image =                         this_single_image.read_single_image()
+                    label, pixel_matrix, width, height, end_of_image = \
+                        this_single_image.read_single_image()
                     
                     width_list.append(width)
                     height_list.append(height)
@@ -122,7 +119,7 @@ class ReadGntFile(object):
                     temp_labels.append(label)
 
                     self.save_image(pixel_matrix, label, count_file, count_single)
-                    if count_single >= 300:
+                    if count_single >= 10:
                       end_of_image = True
             
 #             print ("End of file #%i") % (count_file)
@@ -142,14 +139,7 @@ class ReadGntFile(object):
 def display_char_image():
     gnt_file = ReadGntFile()
     file_list = gnt_file.find_file()
-#     print(file_list)
     gnt_file.show_image()
-#     Image(file_list[0])
-
 
 if __name__ == '__main__':
     display_char_image()
-
-
-
-
