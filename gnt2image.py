@@ -1,4 +1,3 @@
-
 import scipy
 import csv
 import os
@@ -149,7 +148,3 @@ def display_char_image():
 
 if __name__ == '__main__':
     display_char_image()
-
-
-
-
